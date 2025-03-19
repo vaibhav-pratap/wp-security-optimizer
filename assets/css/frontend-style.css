@@ -1,0 +1,67 @@
+.wpso-login-options {
+    margin: 20px 0;
+}
+.wpso-login-tabs {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+    border-bottom: 1px solid #ccd0d4;
+    display: flex;
+}
+.wpso-login-tabs li {
+    margin: 0;
+}
+.wpso-login-tabs a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #0073aa;
+    border-bottom: 2px solid transparent;
+}
+.wpso-login-tabs a.active {
+    color: #000;
+    border-bottom-color: #0073aa;
+}
+.wpso-login-content {
+    padding: 0;
+}
+.wpso-login-pane {
+    display: none;
+}
+.wpso-login-pane.active {
+    display: block;
+}
+.wpso-social-login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.wpso-social-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    transition: background-color 0.2s;
+}
+.wpso-social-button i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+.google { background: #4285f4; }
+.google:hover { background: #357abd; }
+.linkedin { background: #0077b5; }
+.linkedin:hover { background: #005983; }
+.facebook { background: #1877f2; }
+.facebook:hover { background: #1467d2; }
+.github { background: #24292e; }
+.github:hover { background: #1a1e22; }
+.wpso-otp-form .input {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 10px;
+}
