@@ -2,7 +2,7 @@
 /*
 Plugin Name: WP Security Optimizer
 Description: Advanced WordPress security with social login, caching, and dynamic OTP login
-Version: 3.3.1
+Version: 3.3.2
 Author: Vaibhav
 Author URI: https://exiverlabs.co.in
 License: GPL-2.0+
@@ -28,7 +28,7 @@ if (version_compare(PHP_VERSION, '8.0.0', '<') || version_compare(get_bloginfo('
 // Define constants
 define('WPSO_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPSO_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('WPSO_VERSION', '3.3.0');
+define('WPSO_VERSION', '3.3.2');
 
 // Include required classes
 require_once WPSO_PLUGIN_DIR . 'includes/class-wp-security-optimizer.php';
@@ -51,7 +51,7 @@ function wp_security_optimizer_init(): void {
 }
 add_action('plugins_loaded', 'wp_security_optimizer_init');
 
-// Activation hook
+// Activation hook with session preservation and initial setup flag
 register_activation_hook(__FILE__, function(): void {
     $defaults = [
         'wpso_recaptcha_enabled' => false,
@@ -65,8 +65,8 @@ register_activation_hook(__FILE__, function(): void {
         'wpso_facebook_app_secret' => '',
         'wpso_github_client_id' => '',
         'wpso_github_client_secret' => '',
-        'wpso_security_hardening' => true,
-        'wpso_rate_limit_enabled' => true,
+        'wpso_security_hardening' => false, // Disabled by default
+        'wpso_rate_limit_enabled' => false, // Disabled by default
         'wpso_page_cache_enabled' => false,
         'wpso_object_cache_enabled' => false,
         'wpso_cache_expiry' => 3600,
@@ -82,11 +82,17 @@ register_activation_hook(__FILE__, function(): void {
         'wpso_otp_nexmo_secret' => '',
         'wpso_otp_nexmo_from' => '',
         'wpso_otp_messagebird_key' => '',
-        'wpso_otp_messagebird_from' => ''
+        'wpso_otp_messagebird_from' => '',
+        'wpso_configured' => false // Flag to track if admin has saved settings
     ];
     foreach ($defaults as $key => $value) {
         if (get_option($key) === false) {
             update_option($key, $value);
         }
+    }
+
+    // Prevent immediate logout
+    if (is_user_logged_in()) {
+        wp_set_auth_cookie(get_current_user_id(), true);
     }
 });

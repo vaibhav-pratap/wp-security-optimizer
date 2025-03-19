@@ -3,6 +3,9 @@
     <?php if (isset($_GET['cache_cleared'])): ?>
         <div class="notice notice-success is-dismissible"><p><?php _e('Cache cleared successfully!', 'wp-security-optimizer'); ?></p></div>
     <?php endif; ?>
+    <?php if (!get_option('wpso_configured')): ?>
+        <div class="notice notice-info is-dismissible"><p><?php _e('Please configure and save settings to enable plugin features.', 'wp-security-optimizer'); ?></p></div>
+    <?php endif; ?>
     <form method="post" action="options.php">
         <?php 
         settings_fields('wpso_settings');
@@ -21,6 +24,7 @@
             </tr>
         </table>
 
+        <!-- Rest of the settings remain unchanged -->
         <h2 class="title"><?php _e('reCAPTCHA Settings', 'wp-security-optimizer'); ?></h2>
         <table class="form-table">
             <tr>

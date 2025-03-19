@@ -14,21 +14,27 @@ class WPSecurityOptimizer {
     }
 
     private function init_security_features(): void {
-        add_filter('xmlrpc_methods', [$this, 'restrict_xmlrpc_methods'], PHP_INT_MAX);
-        add_filter('query_vars', [$this, 'sanitize_query_vars']);
-        add_action('init', [$this, 'secure_input_data']);
-        add_filter('pre_get_posts', [$this, 'prevent_sql_injection']);
-        add_action('wp_loaded', [$this, 'monitor_file_access']);
-        add_action('send_headers', [$this, 'add_security_headers']);
-        add_filter('login_errors', [$this, 'hide_login_errors']);
-        add_action('wp_login_failed', [$this, 'handle_login_failure']);
-        add_action('rest_api_init', [$this, 'restrict_rest_api']);
+        // Only apply security features if plugin is configured
+        if (get_option('wpso_configured')) {
+            add_filter('xmlrpc_methods', [$this, 'restrict_xmlrpc_methods'], PHP_INT_MAX);
+            add_filter('query_vars', [$this, 'sanitize_query_vars']);
+            add_action('init', [$this, 'secure_input_data']);
+            add_filter('pre_get_posts', [$this, 'prevent_sql_injection']);
+            add_action('wp_loaded', [$this, 'monitor_file_access']);
+            add_action('send_headers', [$this, 'add_security_headers']);
+            add_filter('login_errors', [$this, 'hide_login_errors']);
+            add_action('wp_login_failed', [$this, 'handle_login_failure']);
+            add_action('rest_api_init', [$this, 'restrict_rest_api']);
+        }
+        add_action('admin_notices', [$this, 'display_setup_notice']);
     }
 
     private function init_admin_interface(): void {
         add_action('admin_menu', [$this, 'add_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+        // Set configured flag when settings are saved
+        add_action('update_option_wpso_security_hardening', [$this, 'mark_configured']);
     }
 
     public function restrict_xmlrpc_methods(array $methods): array {
@@ -54,31 +60,40 @@ class WPSecurityOptimizer {
     }
 
     public function monitor_file_access(): void {
-        // Skip during activation grace period or for wp-login.php
-        if (get_transient('wpso_activation_grace') || strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false) {
-            return;
+        if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false) {
+            return; // Always allow wp-login.php
         }
 
-        if (preg_match('/(\.php|\.sql|\.ini|\.htaccess)$/i', $_SERVER['REQUEST_URI']) && 
+        if (get_option('wpso_security_hardening') && 
+            preg_match('/(\.php|\.sql|\.ini|\.htaccess)$/i', $_SERVER['REQUEST_URI']) && 
             !preg_match('/(wp-admin|wp-includes|wp-content)/', $_SERVER['REQUEST_URI'])) {
-            wp_die('Access denied', 403);
+            wp_die(
+                __('Access to this file is restricted by WP Security Optimizer. Please contact the site administrator.', 'wp-security-optimizer'), 
+                __('Access Denied', 'wp-security-optimizer'), 
+                ['response' => 403]
+            );
         }
     }
 
     public function add_security_headers(): void {
-        header('X-Content-Type-Options: nosniff');
-        header('X-Frame-Options: SAMEORIGIN');
-        header('X-XSS-Protection: 1; mode=block');
-        header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-        header('Referrer-Policy: strict-origin-when-cross-origin');
-        header('Content-Security-Policy: upgrade-insecure-requests');
+        if (get_option('wpso_security_hardening')) {
+            header('X-Content-Type-Options: nosniff');
+            header('X-Frame-Options: SAMEORIGIN');
+            header('X-XSS-Protection: 1; mode=block');
+            header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+            header('Referrer-Policy: strict-origin-when-cross-origin');
+            header('Content-Security-Policy: upgrade-insecure-requests');
+        }
         if (get_option('wpso_page_cache_enabled')) {
             header('Cache-Control: public, max-age=' . get_option('wpso_cache_expiry', 3600));
         }
     }
 
     public function hide_login_errors(string $error): string {
-        return get_option('wpso_security_hardening') ? __('Something went wrong.', 'wp-security-optimizer') : $error;
+        if (!get_option('wpso_security_hardening')) {
+            return $error; // Show default errors if not configured
+        }
+        return __('Something went wrong. Please check your credentials or contact support.', 'wp-security-optimizer');
     }
 
     public function handle_login_failure(string $username): void {
@@ -91,7 +106,11 @@ class WPSecurityOptimizer {
         set_transient($transient_key, $attempts, 15 * MINUTE_IN_SECONDS);
         if ($attempts >= 5) {
             status_header(429);
-            wp_die(__('Too many login attempts. Please try again later.', 'wp-security-optimizer'), 429);
+            wp_die(
+                __('Too many login attempts. Please wait 15 minutes or contact support.', 'wp-security-optimizer'), 
+                __('Rate Limit Exceeded', 'wp-security-optimizer'), 
+                ['response' => 429]
+            );
         }
     }
 
@@ -139,11 +158,12 @@ class WPSecurityOptimizer {
             'wpso_otp_login_enabled', 'wpso_otp_email_enabled', 'wpso_otp_phone_enabled',
             'wpso_otp_vendor', 'wpso_otp_twilio_sid', 'wpso_otp_twilio_token', 'wpso_otp_twilio_from',
             'wpso_otp_nexmo_key', 'wpso_otp_nexmo_secret', 'wpso_otp_nexmo_from',
-            'wpso_otp_messagebird_key', 'wpso_otp_messagebird_from'
+            'wpso_otp_messagebird_key', 'wpso_otp_messagebird_from',
+            'wpso_configured'
         ];
         foreach ($settings as $setting) {
             register_setting('wpso_settings', $setting, [
-                'type' => $setting === 'wpso_cache_expiry' ? 'integer' : 'string',
+                'type' => $setting === 'wpso_cache_expiry' ? 'integer' : ($setting === 'wpso_configured' ? 'boolean' : 'string'),
                 'sanitize_callback' => $setting === 'wpso_cache_expiry' ? 'absint' : 'sanitize_text_field'
             ]);
         }
@@ -159,11 +179,15 @@ class WPSecurityOptimizer {
         wp_enqueue_script('wpso-admin-script', WPSO_PLUGIN_URL . 'assets/js/admin-script.js', ['jquery'], WPSO_VERSION, true);
     }
 
-    public function display_activation_notice(): void {
-        if (get_transient('wpso_activation_grace') && is_admin()) {
-            echo '<div class="notice notice-info is-dismissible"><p>' . 
-                __('WP Security Optimizer activated. Security features are temporarily relaxed for 5 minutes to allow login.', 'wp-security-optimizer') . 
+    public function display_setup_notice(): void {
+        if (!get_option('wpso_configured') && is_admin()) {
+            echo '<div class="notice notice-warning is-dismissible"><p>' . 
+                __('WP Security Optimizer is installed but not yet configured. Please visit the <a href="' . admin_url('admin.php?page=wp-security-optimizer') . '">settings page</a> to enable features.', 'wp-security-optimizer') . 
                 '</p></div>';
         }
+    }
+
+    public function mark_configured(): void {
+        update_option('wpso_configured', true);
     }
 }
