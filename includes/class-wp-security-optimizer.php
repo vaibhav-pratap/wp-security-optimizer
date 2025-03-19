@@ -54,6 +54,11 @@ class WPSecurityOptimizer {
     }
 
     public function monitor_file_access(): void {
+        // Skip during activation grace period or for wp-login.php
+        if (get_transient('wpso_activation_grace') || strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false) {
+            return;
+        }
+
         if (preg_match('/(\.php|\.sql|\.ini|\.htaccess)$/i', $_SERVER['REQUEST_URI']) && 
             !preg_match('/(wp-admin|wp-includes|wp-content)/', $_SERVER['REQUEST_URI'])) {
             wp_die('Access denied', 403);
@@ -152,5 +157,13 @@ class WPSecurityOptimizer {
         if ($hook !== 'toplevel_page_wp-security-optimizer') return;
         wp_enqueue_style('wpso-admin-style', WPSO_PLUGIN_URL . 'assets/css/admin-style.css', [], WPSO_VERSION);
         wp_enqueue_script('wpso-admin-script', WPSO_PLUGIN_URL . 'assets/js/admin-script.js', ['jquery'], WPSO_VERSION, true);
+    }
+
+    public function display_activation_notice(): void {
+        if (get_transient('wpso_activation_grace') && is_admin()) {
+            echo '<div class="notice notice-info is-dismissible"><p>' . 
+                __('WP Security Optimizer activated. Security features are temporarily relaxed for 5 minutes to allow login.', 'wp-security-optimizer') . 
+                '</p></div>';
+        }
     }
 }

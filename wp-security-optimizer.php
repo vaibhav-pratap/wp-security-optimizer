@@ -2,7 +2,7 @@
 /*
 Plugin Name: WP Security Optimizer
 Description: Advanced WordPress security with social login, caching, and dynamic OTP login
-Version: 3.3.0
+Version: 3.3.1
 Author: Vaibhav
 Author URI: https://exiverlabs.co.in
 License: GPL-2.0+
