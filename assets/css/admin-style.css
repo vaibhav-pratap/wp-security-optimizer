@@ -1,18 +1,68 @@
-.wpso-social-login-buttons {
-    margin: 20px 0;
+/* Dark Mode Styles */
+body.wpso-dark-mode {
+    background: #212529;
+    color: #f8f9fa;
 }
-.form-table th {
-    padding: 15px 10px;
-    vertical-align: top;
+
+.wpso-dark-mode .nav-pills .nav-link {
+    color: #f8f9fa;
+    background: #343a40;
 }
-.form-table td {
-    padding: 15px 0;
+
+.wpso-dark-mode .nav-pills .nav-link.active {
+    background: #495057;
+    color: #fff;
 }
-h2.title {
-    margin-top: 30px;
-    border-bottom: 1px solid #ccd0d4;
-    padding-bottom: 10px;
+
+.wpso-dark-mode .tab-content {
+    background: #2c3034;
+    border: 1px solid #495057;
+    padding: 20px;
+    border-radius: 5px;
 }
-.button {
-    margin-top: 10px;
+
+.wpso-dark-mode .form-control,
+.wpso-dark-mode .form-select {
+    background: #343a40;
+    color: #f8f9fa;
+    border-color: #495057;
+}
+
+.wpso-dark-mode .form-check-label,
+.wpso-dark-mode .form-label,
+.wpso-dark-mode small {
+    color: #f8f9fa;
+}
+
+.wpso-dark-mode .alert {
+    background: #343a40;
+    color: #f8f9fa;
+    border-color: #495057;
+}
+
+/* General Styles */
+.nav-pills .nav-link {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.tab-content {
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+/* Ensure consistency with WordPress admin */
+.wrap {
+    margin: 0 20px 0 0;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+small.form-text {
+    display: block;
+    margin-top: 0.25rem;
 }

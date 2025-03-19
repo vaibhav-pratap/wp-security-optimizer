@@ -1,16 +1,10 @@
 jQuery(document).ready(function($) {
-    $('.wpso-social-button').on('click', function() {
-        $(this).addClass('loading');
+    // Ensure tabs work correctly on the login page
+    $('#wpsoLoginTabs .nav-link').on('click', function(e) {
+        e.preventDefault();
+        $(this).tab('show');
     });
 
-    $('.wpso-login-tabs a').on('click', function(e) {
-        e.preventDefault();
-        var target = $(this).attr('href');
-        
-        $('.wpso-login-tabs a').removeClass('active');
-        $(this).addClass('active');
-        
-        $('.wpso-login-pane').removeClass('active');
-        $(target).addClass('active');
-    });
+    // Auto-focus the first input in the active tab
+    $('.tab-pane.active .form-control:first').focus();
 });

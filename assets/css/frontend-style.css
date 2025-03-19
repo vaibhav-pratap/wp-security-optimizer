@@ -1,67 +1,62 @@
-.wpso-login-options {
-    margin: 20px 0;
+/* Frontend Styles for Login Form */
+.wpso-login-container {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-.wpso-login-tabs {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 20px;
-    border-bottom: 1px solid #ccd0d4;
-    display: flex;
+
+.wpso-login-container .nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 20px;
 }
-.wpso-login-tabs li {
-    margin: 0;
-}
-.wpso-login-tabs a {
-    display: block;
+
+.wpso-login-container .nav-tabs .nav-link {
+    color: #495057;
+    border: none;
     padding: 10px 20px;
-    text-decoration: none;
-    color: #0073aa;
-    border-bottom: 2px solid transparent;
 }
-.wpso-login-tabs a.active {
-    color: #000;
-    border-bottom-color: #0073aa;
+
+.wpso-login-container .nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border-bottom: 2px solid #0d6efd;
+    background: transparent;
 }
-.wpso-login-content {
-    padding: 0;
+
+.wpso-login-container .tab-content {
+    padding: 10px 0;
 }
-.wpso-login-pane {
-    display: none;
-}
-.wpso-login-pane.active {
-    display: block;
-}
-.wpso-social-login-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.wpso-social-button {
+
+.wpso-login-container .btn-google { background: #db4437; color: #fff; }
+.wpso-login-container .btn-linkedin { background: #0e76a8; color: #fff; }
+.wpso-login-container .btn-facebook { background: #3b5998; color: #fff; }
+.wpso-login-container .btn-github { background: #333; color: #fff; }
+
+.wpso-login-container .btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 20px;
-    text-decoration: none;
-    color: #fff;
-    border-radius: 4px;
-    font-size: 14px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    transition: background-color 0.2s;
+    gap: 10px;
+    padding: 10px;
 }
-.wpso-social-button i {
-    margin-right: 8px;
-    font-size: 16px;
+
+.wpso-login-container .form-control {
+    margin-bottom: 15px;
 }
-.google { background: #4285f4; }
-.google:hover { background: #357abd; }
-.linkedin { background: #0077b5; }
-.linkedin:hover { background: #005983; }
-.facebook { background: #1877f2; }
-.facebook:hover { background: #1467d2; }
-.github { background: #24292e; }
-.github:hover { background: #1a1e22; }
-.wpso-otp-form .input {
+
+.wpso-login-container .btn-primary {
     width: 100%;
-    max-width: 300px;
-    margin-bottom: 10px;
+}
+
+/* Ensure compatibility with WordPress login page */
+.login #login {
+    width: 100%;
+    max-width: 440px;
+    padding: 0;
+}
+
+.login form {
+    margin-top: 0;
 }
